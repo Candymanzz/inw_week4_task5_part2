@@ -1,7 +1,7 @@
-
 using Microsoft.EntityFrameworkCore;
 using Task.Db;
 using Task.Interfaces;
+using Task.Middleware;
 using Task.Repositories;
 using Task.Services;
 
@@ -27,6 +27,8 @@ namespace Task
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             using (IServiceScope scope = app.Services.CreateScope())
             {
