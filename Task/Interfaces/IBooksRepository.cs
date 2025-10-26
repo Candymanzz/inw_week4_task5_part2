@@ -4,10 +4,11 @@ namespace Task.Interfaces
 {
     public interface IBooksRepository
     {
-        List<Book> GetBooks();
-        Book? GetBook(Guid id);
-        void AddBook(Book book);
-        void RemoveBook(Book book);
-        void UpdateBook(Book existing, Book book);
+        Task<List<Book>> GetBooksAsync();
+        Task<Book?> GetBookAsync(Guid id);
+        System.Threading.Tasks.Task AddBookAsync(Book book);
+        System.Threading.Tasks.Task RemoveBookAsync(Book book);
+        System.Threading.Tasks.Task UpdateBookAsync(Book book);
+        Task<List<Book>> GetBooksPublishedAfterAsync(int year);
     }
 }

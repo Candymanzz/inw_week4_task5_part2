@@ -1,13 +1,15 @@
-﻿using Task.Models;
+﻿using Task.DTOs;
+using Task.Models;
 
 namespace Task.Interfaces
 {
     public interface IBooksService
     {
-        List<Book> GetBooks();
-        Book? GetBook(Guid id);
-        void AddBook(Book book);
-        void RemoveBook(Guid id);
-        void UpdateBook(Guid id, Book book);
+        Task<List<Book>> GetBooksAsync();
+        Task<Book?> GetBookAsync(Guid id);
+        System.Threading.Tasks.Task AddBookAsync(Book book);
+        System.Threading.Tasks.Task RemoveBookAsync(Guid id);
+        System.Threading.Tasks.Task UpdateBookAsync(Book book);
+        Task<List<BookDto>> GetBooksPublishedAfterAsync(int year);
     }
 }
