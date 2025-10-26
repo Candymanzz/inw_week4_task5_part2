@@ -1,4 +1,5 @@
-﻿using Task.Interfaces;
+﻿using Task.DTOs;
+using Task.Interfaces;
 using Task.Models;
 using Task.Validations;
 
@@ -12,36 +13,67 @@ namespace Task.Services
             this.authorsRepository = authorsRepository;
         }
 
-        public void AddAuthor(Author author)
+        public async System.Threading.Tasks.Task AddAuthorAsync(Author author)
         {
             AuthorsValidation.EnsureValidateAuthor(author);
-            authorsRepository.AddAuthor(author);
+            await authorsRepository.AddAuthorAsync(author);
         }
 
-        public Author? GetAuthor(Guid id)
+        public async Task<Author?> GetAuthorAsync(Guid id)
         {
             AuthorsValidation.EnsureValidateId(id);
-            return authorsRepository.GetAuthor(id);
+            return await authorsRepository.GetAuthorAsync(id);
         }
 
-        public List<Author> GetAuthors()
+        public async Task<List<Author>> GetAuthorsAsync()
         {
-            return authorsRepository.GetAuthors();
+            return await authorsRepository.GetAuthorsAsync();
         }
 
-        public void RemoveAuthor(Guid id)
+        public async Task<List<AuthorDto>> GetAuthorsWithBookCountsAsync()
         {
-            Author? author = GetAuthor(id);
+            List<Author> authors = await authorsRepository.GetAuthorsAsync();
+                
+            List<AuthorDto> authorsWhithCountOfBooks = authors.Select(a => new AuthorDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                DateOfBirth = a.DateOfBirth,
+                BookCount = a.Books?.Count ?? 0
+            }).ToList();
+
+            return authorsWhithCountOfBooks;
+        }
+
+        public async System.Threading.Tasks.Task RemoveAuthorAsync(Guid id)
+        {
+            Author? author = await GetAuthorAsync(id);
             AuthorsValidation.EnsureAuthorIsNotEmptiness(author);
-            authorsRepository.RemoveAuthor(author!);
+            await authorsRepository.RemoveAuthorAsync(author!);
         }
 
-        public void UpdateAuthor(Guid id, Author author)
+        public async System.Threading.Tasks.Task UpdateAuthorAsync (Author author)
         {
-            Author? existing = GetAuthor(id);
-            AuthorsValidation.EnsureAuthorIsNotEmptiness(existing);
             AuthorsValidation.EnsureValidateAuthor(author);
-            authorsRepository.UpdateAuthor(existing!, author);
+            Author? existing = await authorsRepository.GetAuthorAsync(author.Id);
+            AuthorsValidation.EnsureAuthorIsNotEmptiness(existing);
+
+            await authorsRepository.UpdateAuthorAsync(author);
+        }
+
+        public async Task<List<AuthorDto>> FindAuthorsByNameAsync(string name)
+        {
+            AuthorsValidation.EnsureParameterIsNotEmptiness(name);
+
+            var authors = await authorsRepository.FindAuthorsByNameAsync(name);
+
+            return authors.Select(a => new AuthorDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                DateOfBirth = a.DateOfBirth,
+                BookCount = a.Books.Count
+            }).ToList();
         }
     }
 }
