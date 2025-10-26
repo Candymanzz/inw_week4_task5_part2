@@ -1,38 +1,53 @@
 ﻿using Task.Models;
 using Task.Interfaces;
 using Task.Validations;
+using Task.Db;
+using Microsoft.EntityFrameworkCore;
 
 namespace Task.Repositories
 {
     public class BooksRepository : IBooksRepository
     {
-        private List<Book> books = new();
+        private AppDbContext appDbContext;
 
-        public List<Book> GetBooks()
+        public BooksRepository(AppDbContext appDbContext)
         {
-            return books;
+            this.appDbContext = appDbContext;
         }
 
-        public Book? GetBook(Guid id)
+        public async Task<List<Book>> GetBooksAsync()
         {
-            return books.FirstOrDefault(b => b.Id == id);
+            return await appDbContext.Books.Include(b => b.Author).AsNoTracking().ToListAsync();
         }
 
-        public void AddBook(Book book)
+        public async Task<Book?> GetBookAsync(Guid id)
         {
-            books.Add(book);
+            return await appDbContext.Books.Include(b => b.Author).AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public void RemoveBook(Book book)
+        public async System.Threading.Tasks.Task AddBookAsync(Book book)
         {
-            books.Remove(book);
+            await appDbContext.Books.AddAsync(book);
+            await appDbContext.SaveChangesAsync();
         }
 
-        public void UpdateBook(Book existing, Book book)
+        public async System.Threading.Tasks.Task RemoveBookAsync(Book book)
         {
-            existing.Title = book.Title;
-            existing.PublishedYear = book.PublishedYear;
-            existing.AuthorId = book.AuthorId;
+            appDbContext.Books.Remove(book);
+            await appDbContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateBookAsync(Book book)
+        {
+            appDbContext.Update(book);
+            await appDbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<Book>> GetBooksPublishedAfterAsync(int year)
+        {
+            return await appDbContext.Books.Include(b => b.Author)
+                .Where(b => b.PublishedYear.Year > year)
+                .AsNoTracking().ToListAsync();
         }
     }
 }
