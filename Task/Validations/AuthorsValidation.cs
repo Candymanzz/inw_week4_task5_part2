@@ -12,6 +12,8 @@ namespace Task.Validations
             }
         }
 
+
+
         public static void EnsureValidateAuthor(Author author)
         {
             bool dateValid = author.DateOfBirth < DateOnly.FromDateTime(DateTime.Now);
@@ -28,6 +30,14 @@ namespace Task.Validations
             if (author is null)
             {
                 throw new ArgumentException("Author is empty");
+            }
+        }
+
+        public static void EnsureParameterIsNotEmptiness(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Name parameter is required");
             }
         }
     }
