@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Task.DTOs;
 using Task.Interfaces;
 using Task.Models;
 using Task.Services;
@@ -17,70 +19,49 @@ namespace Task.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Book>> GetBooks()
+        public async Task<ActionResult<List<Book>>> GetBooksAsync()
         {
-            List<Book> books = booksService.GetBooks();
+            List<Book> books = await booksService.GetBooksAsync();
             return Ok(books);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Book> GetBook(Guid id)
+        public async Task<ActionResult<Book>> GetBookAsync(Guid id)
         {
-            try
+            Book? book = await booksService.GetBookAsync(id);
+            if (book is null)
             {
-                Book? book = booksService.GetBook(id);
-                if (book is null)
-                {
-                    return NotFound(new { error = "Book not found" });
-                }
-                return Ok(book);
+                return NotFound(new { error = "Book not found" });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            return Ok(book);
         }
 
         [HttpPost]
-        public ActionResult AddBook([FromBody] Book book)
+        public async Task<ActionResult> AddBookAsync([FromBody] Book book)
         {
-            try
-            {
-                booksService.AddBook(book);
-                return CreatedAtAction(nameof(AddBook), new { id = book.Id }, book);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await booksService.AddBookAsync(book);
+            return CreatedAtAction(nameof(AddBookAsync), new { id = book.Id }, book);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult RemoveBook(Guid id)
+        public async Task<ActionResult> RemoveBookAsync(Guid id)
         {
-            try
-            {
-                booksService.RemoveBook(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await booksService.RemoveBookAsync(id);
+            return NoContent();
         }
 
-        [HttpPut("{id}")]
-        public ActionResult UpdateBook(Guid id, [FromBody] Book book)
+        [HttpPut]
+        public async Task<ActionResult> UpdateBookAsync([FromBody] Book book)
         {
-            try
-            {
-                booksService.UpdateBook(id, book);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await booksService.UpdateBookAsync(book);
+            return NoContent();
+        }
+
+        [HttpGet("after/{year}")]
+        public async Task<ActionResult<List<BookDto>>> GetBooksPublishedAfterAsync(int year)
+        {
+            var books = await booksService.GetBooksPublishedAfterAsync(year);
+            return Ok(books);
         }
     }
 }

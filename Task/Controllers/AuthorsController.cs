@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Task.DTOs;
 using Task.Interfaces;
 using Task.Models;
 
@@ -16,71 +18,58 @@ namespace Task.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Author>> GetAuthors()
+        public async Task<ActionResult<List<Author>>> GetAuthorsAsync()
         {
-            List<Author> authors = authorsService.GetAuthors();
+            List<Author> authors = await authorsService.GetAuthorsAsync();
             return Ok(authors);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Author> GetAuthor(Guid id)
+        public async Task<ActionResult<Author>> GetAuthorAsync(Guid id)
         {
-            try
-            {
-                Author? author = authorsService.GetAuthor(id);
-                if (author is null)
-                {
-                    return NotFound(new { error = "Author not found" });
-                }
 
-                return Ok(author);
-            }
-            catch (Exception ex)
+            Author? author = await authorsService.GetAuthorAsync(id);
+            if (author is null)
             {
-                return BadRequest(new { error = ex.Message });
+                return NotFound(new { error = "Author not found" });
             }
+
+            return Ok(author);
         }
 
         [HttpPost]
-        public ActionResult AddAuthor([FromBody] Author author)
+        public async Task<ActionResult> AddAuthorAsync([FromBody] Author author)
         {
-            try
-            {
-                authorsService.AddAuthor(author);
-                return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await authorsService.AddAuthorAsync(author);
+            return CreatedAtAction(nameof(GetAuthorAsync), new { id = author.Id }, author);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult RemoveAuthor(Guid id)
+        public async Task<ActionResult> RemoveAuthorAsync(Guid id)
         {
-            try
-            {
-                authorsService.RemoveAuthor(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await authorsService.RemoveAuthorAsync(id);
+            return NoContent();
         }
 
-        [HttpPut("{id}")]
-        public ActionResult UpdateAuthor(Guid id, [FromBody] Author author)
+        [HttpPut]
+        public async Task<ActionResult> UpdateAuthorAsync([FromBody] Author author)
         {
-            try
-            {
-                authorsService.UpdateAuthor(id, author);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message});
-            }
+            await authorsService.UpdateAuthorAsync(author);
+            return NoContent();
+        }
+
+        [HttpGet("with-book-counts")]
+        public async Task<ActionResult<List<AuthorDto>>> GetAuthorsWithBookCountsAsync()
+        {
+            var authors = await authorsService.GetAuthorsWithBookCountsAsync();
+            return Ok(authors);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<List<AuthorDto>>> FindAuthorsByNameAsync([FromQuery] string name)
+        {
+            var authors = await authorsService.FindAuthorsByNameAsync(name);
+            return Ok(authors);
         }
     }
 }
