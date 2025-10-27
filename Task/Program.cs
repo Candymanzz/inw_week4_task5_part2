@@ -15,13 +15,17 @@ namespace Task
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=task5.db"));
 
-            builder.Services.AddSingleton<IAuthorsRepository, AuthorsRepository>();
-            builder.Services.AddSingleton<IBooksRepository, BooksRepository>();
+            builder.Services.AddScoped<IAuthorsRepository, AuthorsRepository>();
+            builder.Services.AddScoped<IBooksRepository, BooksRepository>();
 
             builder.Services.AddScoped<IAuthorsService, AuthorsService>();
             builder.Services.AddScoped<IBooksService, BooksService>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -34,6 +38,7 @@ namespace Task
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 db.Database.EnsureCreated();
+                SeedData.Initialize(db);
             }
 
             if (app.Environment.IsDevelopment())
