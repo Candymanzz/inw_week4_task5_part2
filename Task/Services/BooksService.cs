@@ -16,12 +16,19 @@ namespace Task.Services
             this.authorsRepository = authorsRepository;
         }
 
-        public async System.Threading.Tasks.Task AddBookAsync(Book book)
+        public async System.Threading.Tasks.Task AddBookAsync(CreateBookDto dto)
         {
-            AuthorsValidation.EnsureValidateId(book.Id);
+            Book book = new Book
+            {
+                Title = dto.Title,
+                PublishedYear = dto.PublishedYear,
+                AuthorId = dto.AuthorId,
+            };
+
             Author? author = await authorsRepository.GetAuthorAsync(book.AuthorId);
             AuthorsValidation.EnsureAuthorIsNotEmptiness(author);
             BooksValidation.EnsureValidateBook(book);
+
             await booksRepository.AddBookAsync(book);
         }
 

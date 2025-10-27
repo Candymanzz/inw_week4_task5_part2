@@ -13,9 +13,21 @@ namespace Task.Services
             this.authorsRepository = authorsRepository;
         }
 
-        public async System.Threading.Tasks.Task AddAuthorAsync(Author author)
+        public async System.Threading.Tasks.Task AddAuthorAsync(CreateAuthorDto dto)
         {
+            Author author = new Author
+            {
+                Name = dto.Name,
+                DateOfBirth = dto.DateOfBirth,
+                Books = dto.Books.Select(b => new Book
+                {
+                    Title = b.Title,
+                    PublishedYear = b.PublishedYear
+                }).ToList()
+            };
+
             AuthorsValidation.EnsureValidateAuthor(author);
+
             await authorsRepository.AddAuthorAsync(author);
         }
 
@@ -32,17 +44,7 @@ namespace Task.Services
 
         public async Task<List<AuthorDto>> GetAuthorsWithBookCountsAsync()
         {
-            List<Author> authors = await authorsRepository.GetAuthorsAsync();
-                
-            List<AuthorDto> authorsWhithCountOfBooks = authors.Select(a => new AuthorDto
-            {
-                Id = a.Id,
-                Name = a.Name,
-                DateOfBirth = a.DateOfBirth,
-                BookCount = a.Books?.Count ?? 0
-            }).ToList();
-
-            return authorsWhithCountOfBooks;
+            return await authorsRepository.GetAuthorsWithBookCountsAsync();
         }
 
         public async System.Threading.Tasks.Task RemoveAuthorAsync(Guid id)
@@ -52,11 +54,25 @@ namespace Task.Services
             await authorsRepository.RemoveAuthorAsync(author!);
         }
 
-        public async System.Threading.Tasks.Task UpdateAuthorAsync (Author author)
+        public async System.Threading.Tasks.Task UpdateAuthorAsync(UpdateAuthorDto dto)
         {
-            AuthorsValidation.EnsureValidateAuthor(author);
-            Author? existing = await authorsRepository.GetAuthorAsync(author.Id);
-            AuthorsValidation.EnsureAuthorIsNotEmptiness(existing);
+            Author? author = await authorsRepository.GetAuthorAsync(dto.Id);
+
+            AuthorsValidation.EnsureAuthorIsNotEmptiness(author);
+            AuthorsValidation.EnsureValidateAuthor(author!);
+
+            author!.Name = dto.Name;
+            author.DateOfBirth = dto.DateOfBirth;
+
+            foreach (var bookDto in dto.Books)
+            {
+                var book = author.Books.FirstOrDefault(b => b.Id == bookDto.Id);
+                if (book != null)
+                {
+                    book.Title = bookDto.Title;
+                    book.PublishedYear = bookDto.PublishedYear;
+                }
+            }
 
             await authorsRepository.UpdateAuthorAsync(author);
         }
