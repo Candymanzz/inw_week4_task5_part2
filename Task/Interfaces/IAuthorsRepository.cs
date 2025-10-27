@@ -1,4 +1,5 @@
-﻿using Task.Models;
+﻿using Task.DTOs;
+using Task.Models;
 
 namespace Task.Interfaces
 {
@@ -10,5 +11,6 @@ namespace Task.Interfaces
         System.Threading.Tasks.Task RemoveAuthorAsync(Author author);
         System.Threading.Tasks.Task UpdateAuthorAsync(Author author);
         Task<List<Author>> FindAuthorsByNameAsync(string name);
+        Task<List<AuthorDto>> GetAuthorsWithBookCountsAsync();
     }
 }
