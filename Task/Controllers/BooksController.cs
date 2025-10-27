@@ -37,10 +37,10 @@ namespace Task.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddBookAsync([FromBody] Book book)
+        public async Task<ActionResult> AddBookAsync([FromBody] CreateBookDto dto)
         {
-            await booksService.AddBookAsync(book);
-            return CreatedAtAction(nameof(AddBookAsync), new { id = book.Id }, book);
+            await booksService.AddBookAsync(dto);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

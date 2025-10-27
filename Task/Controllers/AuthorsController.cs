@@ -38,10 +38,10 @@ namespace Task.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddAuthorAsync([FromBody] Author author)
+        public async Task<ActionResult> AddAuthorAsync([FromBody] CreateAuthorDto author)
         {
             await authorsService.AddAuthorAsync(author);
-            return CreatedAtAction(nameof(GetAuthorAsync), new { id = author.Id }, author);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -52,9 +52,9 @@ namespace Task.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateAuthorAsync([FromBody] Author author)
+        public async Task<ActionResult> UpdateAuthorAsync([FromBody] UpdateAuthorDto updateAuthorDto)
         {
-            await authorsService.UpdateAuthorAsync(author);
+            await authorsService.UpdateAuthorAsync(updateAuthorDto);
             return NoContent();
         }
 
