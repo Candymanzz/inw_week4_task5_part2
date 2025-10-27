@@ -11,7 +11,7 @@ using Task.Db;
 namespace Task.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251026132153_Init")]
+    [Migration("20251027140458_Init")]
     partial class Init
     {
         /// <inheritdoc />
