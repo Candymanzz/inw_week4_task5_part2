@@ -1,4 +1,5 @@
 ﻿using Task.Models;
+using Task.DTOs;
 
 namespace Task.Validations
 {
@@ -11,8 +12,6 @@ namespace Task.Validations
                 throw new ArgumentException("Invalid author id");
             }
         }
-
-
 
         public static void EnsureValidateAuthor(Author author)
         {
