@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Task.Db;
+using Task.DTOs;
 using Task.Interfaces;
 using Task.Models;
 
@@ -18,12 +19,12 @@ namespace Task.Repositories
 
         public async Task<List<Author>> GetAuthorsAsync()
         {
-            return await appDbContext.Authors.Include(a => a.Books).AsNoTracking().ToListAsync();
+            return await appDbContext.Authors.AsNoTracking().ToListAsync();
         }
 
         public async Task<Author?> GetAuthorAsync(Guid id)
         {
-            return await appDbContext.Authors.Include(a => a.Books).AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+            return await appDbContext.Authors.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async System.Threading.Tasks.Task AddAuthorAsync(Author author)
@@ -52,5 +53,19 @@ namespace Task.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<List<AuthorDto>> GetAuthorsWithBookCountsAsync()
+        {
+            return await appDbContext.Authors
+                .Select(a => new AuthorDto
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    DateOfBirth = a.DateOfBirth,
+                    BookCount = a.Books.Count() 
+                })
+                .ToListAsync();
+        }
+
     }
 }
